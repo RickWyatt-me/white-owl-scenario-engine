@@ -1,186 +1,243 @@
-# decision_router.md
-## System Directive — Decision Routing & Orchestration
+# Decision Router Directive (Authoritative)
 
-This directive defines how the White Owl Scenario Engine determines
-**what to do next** when a user asks a question or runs a scenario.
+## Purpose
+Act as the **single control layer** that routes *every business decision* to the correct directive(s), in the correct order, with explicit **stop conditions**.
 
-It is the single source of truth for routing behavior.
+This router prevents:
+- Premature scaling
+- Pricing changes without value definition
+- Marketing spend without CAC discipline
+- Product expansion without capacity clarity
+- Burnout disguised as growth
 
----
-
-## Core Objective
-
-Route user intent to the **minimum necessary directive(s)** required
-to produce a correct, actionable business outcome.
-
-The system must:
-- Prefer deterministic execution over inference
-- Ask for missing inputs explicitly
-- Avoid running unnecessary directives
-- Stop once the objective is satisfied
+If a decision is not routed through this file, it is **not approved**.
 
 ---
 
-## Input Sources
+## Governing Principle
 
-User intent may come from:
-- Chat-style input (future AI assistant)
-- Button click (Run Scenario)
-- Page navigation (Agent Assistant, Reports)
-
-All routing decisions must be based on **observable inputs**, not assumptions.
+> **No decision is allowed to skip its prerequisites.  
+> Sequence is strategy.**
 
 ---
 
-## Primary Routing Categories
+## System Dependencies (Hard Requirements)
 
-### 1. Unit Economics / Viability
-Trigger when the user intent includes:
-- pricing
-- profit
-- margin
-- unit economics
-- “is this viable”
-- “can I make money on this”
+The router assumes the following **definition layer** is complete and authoritative:
 
-**Route to:**
+- `define_ltv_model.md`
+- `define_cac_model.md`
+
+If either is missing or flagged outdated:
+➡️ **STOP. No routing allowed.**
+
+---
+
+## Canonical Decision Intake Format
+
+Every request must be reduced to:
+
+1. **Decision Type** (choose one primary):
+   - Pricing
+   - Acquisition
+   - Product / Offer
+   - Capacity / Operations
+   - Customer Quality
+   - Scaling / Growth
+   - Financial Viability
+   - Strategic Direction
+
+2. **Primary Pain Signal** (what feels broken):
+   - “Sales are slow”
+   - “Margins feel thin”
+   - “I’m overloaded”
+   - “Customers are difficult”
+   - “Growth feels risky”
+   - “Not sure what to do next”
+
+3. **Time Horizon**
+   - Immediate (days)
+   - Short (weeks)
+   - Medium (months)
+
+If the above cannot be determined:
+➡️ Ask **one clarifying question only**, then route.
+
+---
+
+## Global Gates (Never Skipped)
+
+### Gate 0 — Definitions Gate
+If LTV or CAC is undefined, outdated, or speculative:
+➡️ Route to:
+- `define_ltv_model.md`
+- `define_cac_model.md`
+
+No other directives may run.
+
+---
+
+### Gate 1 — Unit Economics Gate
+If profitability is unknown or questioned:
+➡️ Route to:
 - `diagnose_unit_economics.md`
 
----
-
-### 2. Pricing & CAC Guardrails
-Trigger when the user intent includes:
-- pricing strategy
-- CAC
-- LTV
-- “12:1”
-- acquisition limits
-- “how much can I spend to acquire a customer”
-
-**Route to (in order):**
-1. `define_ltv_model.md`
-2. `define_cac_model.md`
-3. `diagnose_pricing.md`
+Stop if FAIL.
 
 ---
 
-### 3. Scaling & Throughput
-Trigger when the user intent includes:
-- scale
-- capacity
-- throughput
-- bottlenecks
-- hiring
-- “how many can I produce”
-- “what breaks next”
-
-**Route to (in order):**
-1. `diagnose_capacity_and_throughput.md`
-2. `diagnose_scalability.md`
-3. `optimize_scaling_strategy.md`
-
----
-
-### 4. Product Mix Optimization
-Trigger when the user intent includes:
-- multiple products
-- bundles
-- variants
-- “which product should I push”
-- “best mix”
-
-**Route to:**
-- `optimize_product_mix.md`
-
----
-
-### 5. Customer & Acquisition Quality
-Trigger when the user intent includes:
-- customer quality
-- churn
-- refunds
-- retention
-- lead quality
-- channels
-
-**Route to:**
+### Gate 2 — Customer Quality Gate
+If friction, custom creep, or “bad customers” are suspected:
+➡️ Route to:
 - `diagnose_customer_quality.md`
+
+Stop if Misaligned or High-Friction dominates.
+
+---
+
+### Gate 3 — Capacity Gate
+If workload, lead times, or overwhelm exist:
+➡️ Route to:
+- `diagnose_capacity_and_throughput.md`
+
+Stop if Bottleneck or Founder-Constrained.
+
+---
+
+### Gate 4 — Pricing Gate
+Pricing changes are allowed **only if**:
+- Customer quality is known
+- Capacity constraints are known
+
+Then route to:
+- `diagnose_pricing.md`
+
+---
+
+### Gate 5 — Acquisition Gate
+Any marketing or traffic decision requires:
+➡️ Route to:
 - `diagnose_acquisition_quality.md`
 
----
-
-## Execution Rules
-
-1. **Minimum Viable Execution**
-   - Only run directives required to answer the question.
-   - Do not run “extra” analysis.
-
-2. **Sequential Dependency**
-   - If a directive depends on outputs of another, it must be executed after.
-   - Example: CAC analysis must not run before LTV is defined.
-
-3. **Fail Fast on Missing Inputs**
-   - If a directive requires data not provided:
-     - Stop execution
-     - Ask the user for the specific missing input
-     - Do not guess
-
-4. **Deterministic First**
-   - If a result can be computed deterministically, do so.
-   - AI is allowed to:
-     - explain
-     - summarize
-     - recommend
-   - AI is NOT allowed to:
-     - invent numbers
-     - override calculations
+Stop if CAC violates 12:1 or quality is poor.
 
 ---
 
-## Stop Conditions
+### Gate 6 — Product Mix Gate
+SKU or offer changes require:
+➡️ Route to:
+- `optimize_product_mix.md`
 
-The routing process must stop when:
-- The primary question is answered
-- Guardrails are evaluated (e.g. pass/fail on 12:1)
-- A clear recommendation is produced
-
-The system must not continue “exploring” once a valid conclusion exists.
+Stop if bottleneck misuse detected.
 
 ---
 
-## Output Expectations
+### Gate 7 — Scalability Gate
+Any growth or expansion decision requires:
+➡️ Route to:
+- `diagnose_scalability.md`
 
-Each routing decision must produce:
-- A list of directives executed (in order)
-- A clear result (pass/fail, recommendation, or metric)
-- A suggested next action (optional, but explicit)
-
----
-
-## Self-Healing Rules
-
-If execution fails:
-1. Identify which directive failed
-2. Surface the failure clearly to the user
-3. Request corrective input or data
-4. Resume execution only after correction
-
-Silent failure is forbidden.
+If result is **Do Not Scale**:
+➡️ Escalate to stabilization actions only.
 
 ---
 
-## Authority
+## Routing by Common Decision Scenarios
 
-This router overrides:
-- UI heuristics
-- AI intuition
-- User ambiguity
+### Scenario A — “Sales are slow”
+1. `diagnose_customer_quality.md`
+2. `diagnose_pricing.md`
+3. `diagnose_acquisition_quality.md`
 
-If routing is unclear, the system must ask a clarification question.
+🚫 Do NOT:
+- Discount
+- Increase ad spend
+- Add products
+
+Until all three complete.
 
 ---
 
-## Version
-- Router Version: 1.0.0
-- Scope: Single-user, White Owl Studio
-- Optimization Target: LTV:CAC ≥ 12:1
+### Scenario B — “Margins are thin but I’m busy”
+1. `diagnose_unit_economics.md`
+2. `diagnose_customer_quality.md`
+3. `diagnose_pricing.md`
+4. `optimize_product_mix.md`
+
+🚫 Do NOT:
+- Chase volume
+- Add capacity
+- Hire
+
+---
+
+### Scenario C — “I’m overloaded / behind”
+1. `diagnose_capacity_and_throughput.md`
+2. `optimize_product_mix.md`
+3. `diagnose_pricing.md` (for demand throttling)
+
+🚫 Do NOT:
+- Add SKUs
+- Run promotions
+- Expand acquisition
+
+---
+
+### Scenario D — “Customers are a pain”
+1. `diagnose_customer_quality.md`
+2. `optimize_product_mix.md`
+3. `diagnose_pricing.md`
+
+🚫 Do NOT:
+- Accept more custom work
+- Justify friction as craftsmanship
+
+---
+
+### Scenario E — “Should I run ads / scale marketing?”
+1. `diagnose_acquisition_quality.md`
+2. `define_cac_model.md` (revalidate)
+3. `define_ltv_model.md` (revalidate)
+
+🚫 Do NOT:
+- Scale spend unless CAC ≤ LTV / 12
+
+---
+
+### Scenario F — “What should I focus on next?”
+Default stabilization order:
+1. Capacity
+2. Customer quality
+3. Pricing
+4. Product mix
+5. Acquisition
+6. Scaling strategy
+
+---
+
+## Escalation to Strategy Selection
+
+Only after **all diagnostics PASS**:
+➡️ Route to:
+- `optimize_scaling_strategy.md`
+
+This directive selects:
+- Price scaling
+- Scarcity scaling
+- Process scaling
+- Capital scaling
+- Product mix scaling
+- Leverage / licensing
+- Replication
+
+---
+
+## Output Format (Mandatory)
+
+The router must return:
+
+```text
+Decision Routed To:
+Why This Comes Next:
+Required Inputs:
+Explicit Stop Conditions:
