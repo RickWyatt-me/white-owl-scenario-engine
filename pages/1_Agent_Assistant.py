@@ -25,13 +25,13 @@ scenario_import_error = ""
 
 try:
     # Expect decision_engine(question) -> dict
-    from execution.decision_engine import decision_engine
+    from execution.decision_router_engine import route as decision_engine
 except Exception as e:
     routing_available = False
     routing_import_error = str(e)
 
 try:
-    from execution.scenario_engine import (
+    from execution.decision_router_engine import (
         ScenarioInputs,
         compute_unit_economics,
         compute_ltv_simple,
