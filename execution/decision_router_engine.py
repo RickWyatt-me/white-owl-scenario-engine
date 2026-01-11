@@ -751,3 +751,26 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+def decision_engine(user_intent: str):
+    """
+    UI-safe adapter for Streamlit and other frontends.
+
+    - Locates directives directory automatically
+    - Calls the authoritative `route()` function
+    - Returns RoutedDecision
+    """
+    from pathlib import Path
+
+    # Assume repo layout:
+    # repo_root/
+    #   directives/
+    #   execution/
+    #     decision_router_engine.py  <-- this file
+    repo_root = Path(__file__).resolve().parent.parent
+    directives_dir = repo_root / "directives"
+
+    if not directives_dir.exists():
+        raise RuntimeError("Directives directory not found at expected path")
+
+    return route(user_intent, directives_dir)
